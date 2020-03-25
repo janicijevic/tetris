@@ -44,11 +44,17 @@ function execute(c){
 }
 
 let keyCodes;
-let w = 300;
-let h = 600;
 let areaW = 10;
 let areaH = 20;
-let blockW = Math.round(w/areaW);
+let blockW = 30;
+let isMobile = false;
+let deviceW = document.body.offsetWidth;
+if(deviceW < 660){
+    isMobile = true;
+    blockW = Math.round(deviceW/22);
+}
+let w = blockW*areaW;
+let h = blockW*areaH;
 let xOffset = blockW*6;
 let yOffset = 0;
 let stat, empty;
