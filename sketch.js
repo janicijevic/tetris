@@ -184,16 +184,16 @@ function draw(){
             s = tetri.reduce((a,b) => a+b, 0);
             lines += s
             if(s == 1){
-                score += 40*level;
+                score += 40*(level+1);
             }
             else if(s == 2){
-                score += 100*level;
+                score += 100*(level+1);
             }
             else if(s == 3){
-                score += 300*level;
+                score += 300*(level+1);
             }
             else if(s == 4){
-                score += 1200*level;
+                score += 1200*(level+1);
             }
 
             for (let i = 0; i<tetri.length; i++){
@@ -276,17 +276,12 @@ function draw(){
     rect(xOffset+w+blockW, 4*blockW, 4*blockW, 4*blockW);
     noStroke();
 
-    // #Show score
-    // scoreText = font.render('Score: '+str(score), true, (0, 0, 0))
-    // screen.blit(scoreText, (blockW, 4*blockW))
-    // scoreText = font.render('Lines: '+str(lines), true, (0, 0, 0))
-    // screen.blit(scoreText, (blockW, 6*blockW))
-
     //Score
     fill(0)
     textAlign(LEFT)
     text('Score: '+score, blockW, 4*blockW);
-    text('Lines: '+lines, blockW, 6*blockW)
+    text('Lines: '+lines, blockW, 6*blockW);
+    text('Level: '+level, blockW, 8*blockW);
 
     
     // #Grid lines
@@ -305,28 +300,7 @@ function draw(){
         fill(94, 94, 94, 200);
         rect(xOffset+3/2*blockW, (6+1/2)*blockW, 2*blockW, 8*blockW)
         rect(xOffset+(10-3/2-2)*blockW, (6+1/2)*blockW, 2*blockW, 8*blockW)
-        
-
-        // selected %= selections.length;
-        // startY = 5*blockW;
-        // fill(94, 94, 94);
-        // rect(xOffset-2*blockW, startY, blockW*(areaW+4), areaH*blockW-2*startY);
-        // text = font.render("Paused", true, (255, 255, 255))
-        // screen.blit(text, (xOffset+width/2-text.get_width()/2, blockW+startY-text.get_height()/2))
-        // for (let i = 0; i <selections.length; i++){
-        //     text = font.render(selections[i], true, (200, 200, 200))
-        //     if(i == selected){
-        //         text = font.render(selections[i], true, (0, 0, 0))
-        //         fill(0)
-        //         triangle(xOffset+width/2-text.get_width()/2-10, (i+4)*blockW+startY,
-        //                 xOffset+width/2-text.get_width()/2-15, (i+4)*blockW+startY+5,
-        //                 xOffset+width/2-text.get_width()/2-15, (i+4)*blockW+startY-5)
-        //         triangle(xOffset+width/2+text.get_width()/2+10, (i+4)*blockW+startY,
-        //                 xOffset+width/2+text.get_width()/2+15, (i+4)*blockW+startY+5,
-        //                 xOffset+width/2+text.get_width()/2+15, (i+4)*blockW+startY-5)
-        //     }
-        //     screen.blit(text, (xOffset+width/2-text.get_width()/2, (i+4)*blockW+startY-text.get_height()/2))
-        //}
+    
     }
 
     if(gameOver){
@@ -335,8 +309,6 @@ function draw(){
         fill(255);
         textAlign(CENTER);
         text("Game Over, Press space to play again", xOffset+areaW/2*blockW, areaH*blockW/2);
-        // text = font.render("Game Over", true, (255, 255, 255))
-        // screen.blit(text, (xOffset+width/2-text.get_width()/2, height/2-text.get_height()/2))
     }
 
 

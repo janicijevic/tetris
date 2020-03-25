@@ -79,7 +79,6 @@ class Block{
 
 
     update(stat, dy=1){
-        console.log("down")
         // #Move to next pos
         this.y += dy;
         // #Go back if collided
@@ -144,20 +143,6 @@ class Block{
             // # u levo
             return int(this.map[(3-i)*4+j])
     }
-
-    // drawInto(area){
-    //     for (let i = 0; i<4; i++){
-    //         for (let j = 0; j < 4; j++){
-    //             if(this.getMap(i,j) == 1){
-    //                 if(this.x+i >= 0 && this.y+j >= 0){
-    //                     area[this.x+i][this.y+j] = 1;
-    //                     console.log("drawn")
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
-
 
     goToBottom(stat){
         for(let i = 0; i<stat[0].length; i++){
