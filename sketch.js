@@ -43,9 +43,6 @@ function execute(c){
     }
 }
 
-let speeds= [48, 43, 38, 33, 28, 23, 18, 13, 8, 6, 5, 5, 5, 4, 4, 4, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1]  
-
-let pressedKeys = {"Down": [0,0],"Left": [0,0],"Right": [0,0]};
 let keyCodes;
 let w = 300;
 let h = 600;
@@ -135,7 +132,6 @@ function keyPressed(){
     else{
         if(keyCode == 32){
             initialize()
-            console.log("...")
         }
     }
 }
@@ -174,12 +170,6 @@ function draw(){
                 down();
             }
             
-            if(frames % changeSpeed == 0){
-                gameSpeed -= 5;
-                console.log(gameSpeed);
-                if(gameSpeed < 15) gameSpeed = 15;
-            }
-
             tetri=[];
             for (let j = 0; j < areaH; j++){
                 s = 0;
@@ -272,6 +262,7 @@ function draw(){
     nextBlock.type = b.nextBlockType;
     nextBlock.map = tipovi[nextBlock.type];
     nextBlock.color = colors[typeColor[nextBlock.type]-1];
+    nextBlock.x = 1
     for (let i = 0; i < 4; i++){
         for (let j = 0; j < 4; j++){
             if(nextBlock.getMap(i, j) == 1){

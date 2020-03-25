@@ -1,4 +1,10 @@
-// import random
+function modulo(a,n) {
+    return ((a%n)+n)%n;
+};
+
+let speeds= [48, 43, 38, 33, 28, 23, 18, 13, 8, 6, 5, 5, 5, 4, 4, 4, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1]  
+
+let pressedKeys = {"Down": [0,0],"Left": [0,0],"Right": [0,0]};
 
 let tipovi = {
     "I": "0000000011110000",
@@ -9,6 +15,7 @@ let tipovi = {
     "T": "0000001001110000",
     "Z": "0000011000110000"
 };
+
 let typeColor = {
     "I": 1,
     "J": 2,
@@ -28,13 +35,27 @@ let starty = 0;
 class Block{
     constructor(tip){
         this.type = tip;
+        this.initialize()
+    }
+
+    initialize(){
         this.map = tipovi[this.type];
         this.nextBlockType = slova[Math.round(Math.random()*(slova.length - 1))];
         this.color = colors[typeColor[this.type]-1];
-        this.x = 1;
+        this.x = 3;
         this.y = starty;
         this.rot = 0;
-        this.type = tip;
+    }
+
+    reset(stat){
+        this.type = this.nextBlockType;
+        this.initialize()
+
+
+        if(this.collision(stat))
+            this.y -= 1;
+            if(this.collision(stat))
+                this.y -= 1;
     }
 
 
@@ -56,7 +77,9 @@ class Block{
         return false;
     }
 
+
     update(stat, dy=1){
+        console.log("down")
         // #Move to next pos
         this.y += dy;
         // #Go back if collided
@@ -79,6 +102,7 @@ class Block{
         return 0;
     }
 
+
     side(stat, d){
         // #Move
         this.x += d;
@@ -92,33 +116,18 @@ class Block{
 
 
     rotate(stat){
-        if(this.map == tipovi["O"]) return;
+        if(this.map == tipovi["O"]) return 0;
         
         this.rot += 1;
-        this.rot %= 4;
+        this.rot = modulo(this.rot, 4);
         if(this.collision(stat)){
             this.rot -= 1;
-            this.rot %= 4;
+            this.rot = modulo(this.rot, 4);
             return 1;
         }
         return 0;
     }
 
-
-    reset(stat){
-        this.type = this.nextBlockType;
-        this.map = tipovi[this.type];
-        this.nextBlockType = slova[Math.round(Math.random()*(slova.length - 1))];
-        this.color = colors[typeColor[this.type]-1];
-        this.x = 3;
-        this.y = starty;
-        this.rot = 0;
-
-        if(this.collision(stat))
-            this.y -= 1;
-            if(this.collision(stat))
-                this.y -= 1;
-    }
 
     getMap(j, i){
         // #j pa i zbog jbg
