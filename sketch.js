@@ -1,197 +1,352 @@
-let scale = 20;
-let grid;
-let c = 0;
-let speed = 10;
-let currentBlock = -1;
 
-let blockTypes = {
-    0: [['0000', '1111'], 2],
-    1: [['1000', '1110'], 4],
-    2: [['0010', '1110'], 4],
-    3: [['1100', '1100'], 1],
-    4: [['0110', '1100'], 2],
-    5: [['0100', '1110'], 4],
-    6: [['1100', '0110'], 2]
+function down(){
+    if(b.update(stat) == 1){
+        pressedKeys["Down"] = [0, 0]
+    }
+    // area = [... empty]
+    // b.drawInto(area)
 }
 
-function setup() {
-    createCanvas(600, 600);
-    grid = [];
-    for(let i = 0; i < width/2/scale; i++){
-        let tmp = [];
-        for(let j = 0; j < height/scale; j++){
-            tmp.push(2);
+function side(dx){
+    k = "Left"
+    if(dx == 1) k = "Right"
+    if(b.side(stat, dx) == 1){
+        pressedKeys[k] = [0, 0]
+    }
+    // area = [... empty]
+    // b.drawInto(area)
+}
+
+function rotateBlock(){
+    if(b.rotate(stat) == 1){
+        if(b.side(stat, -1) == 1){
+            if(b.side(stat, 1) == 0){
+                if(b.rotate(stat) == 1){
+                    b.side(stat, -1)
+                }
+            }
         }
-        grid.push(tmp);
+        else if(b.rotate(stat) == 1){
+            b.side(stat, 1)
+        }
     }
-    new Block();
-    
-    //Configuring buttons
-    down = document.getElementById("down");
-    left = document.getElementById("left");
-    right = document.getElementById("right");
-    down.onclick = function(){
-        keyCode = DOWN_ARROW;
-        keyPressed();
-    }
-    left.onclick = function(){
-        keyCode = LEFT_ARROW;
-        keyPressed();
-    }
-    right.onclick = function(){
-        keyCode = RIGHT_ARROW;
-        keyPressed();
-    }
-
+    // area = [... empty]
+    // b.drawInto(area)
 }
 
-function draw() {
-    c++;
-    
-    background(50);
-    drawGrid();
-
-    // frame rate according to c
-    if (c >= speed){
-        Block.updateAll();
-        c = 0;
+function execute(c){
+    if(c == "Resume"){
+        paused = false
     }
+    else if(c == "New Game"){
 
+    }
+}
+
+let speeds= [48, 43, 38, 33, 28, 23, 18, 13, 8, 6, 5, 5, 5, 4, 4, 4, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1]  
+
+let pressedKeys = {"Down": [0,0],"Left": [0,0],"Right": [0,0]};
+let keyCodes;
+let w = 300;
+let h = 600;
+let areaW = 10;
+let areaH = 20;
+let blockW = Math.round(w/areaW);
+let xOffset = blockW*6;
+let yOffset = 0;
+let stat, empty;
+let b, ghostBlock, nextBlock;
+let changeSpeed = 200;
+let tetri = [];
+let selected = 0;
+let selections = ["Resume", "New Game"];
+let frames, gameOver, paused, lines, score, gameSpeed, level;
+
+function initialize(){
+    frames = 0
+    gameOver = false;
+    paused = false;
+    lines = 0;
+    score = 0;
+    level = 0;
+    gameSpeed = 50;
+    stat = []
+    empty = []
+    for (let i = 0; i < areaW; i++){
+        tmp = [];
+        for (let j = 0; j < areaH; j++){
+            tmp.push(0);
+        }
+        empty.push(tmp);
+    }
+    // #Za blockove koji su sleteli
+    stat = [... empty];
+}
+
+function setup(){
+    initialize()
+    createCanvas(w+2*xOffset, h+yOffset)
+    textFont('Helvetica');
+    textSize(20);
+    b = new Block("T");
+    ghost = new Block(b.type);
+    nextBlock = new Block(b.nextBlockType);
+    keyCodes = {"Down": DOWN_ARROW,"Left": LEFT_ARROW,"Right": RIGHT_ARROW};
+
+    // #Makes the area 2d array
     
 }
 
-function mousePressed(){
-    //two = new Block();
-}
 
 function keyPressed(){
-    let block = Block.blocks[currentBlock];
-    if(block.active){
-        if (keyCode == LEFT_ARROW){
-            if(block.x-1 >= 0){
-                block.setBlock(0);
-                block.x-=1;
-                block.setBlock(1);
+    if(!gameOver){
+        if(keyCode === 27){
+            paused = !paused;
+        }
+        if(!paused){
+            if(keyCode === DOWN_ARROW){
+                down()
+                pressedKeys["Down"][0] = frames
+            }
+            else if(keyCode === LEFT_ARROW){
+                side(-1);
+                pressedKeys["Left"][0] = frames
+            }
+            else if(keyCode === RIGHT_ARROW){
+                side(1);
+                pressedKeys["Right"][0] = frames
+            }
+            else if(keyCode === UP_ARROW){
+                rotateBlock();
             }
         }
-        if (keyCode == RIGHT_ARROW){
-            if(block.x+4 < width/2/scale){
-                block.setBlock(0);
-                block.x+=1;
-                block.setBlock(1);
+        else{
+            if(keyCode === UP_ARROW){
+                selected--;
+            }
+            else if(keyCode == DOWN_ARROW){
+                selected++;
+            }
+            else if(keyCode === 13){
+                execute(selections[selected]);
             }
         }
-        if (keyCode == DOWN_ARROW){
-            speed = 1;
-        }
-        if(keyCode == UP_ARROW){
-            block.rotate();
+    }
+    else{
+        if(keyCode == 32){
+            initialize()
+            console.log("...")
         }
     }
 }
 
-function drawGrid(){
-    // Draws the tetris grid
-    noFill();
-    stroke(255);
-    for(let i = 0; i < grid.length; i++){
-        for(let j = 0; j < grid[i].length; j++){
-            (grid[i][j] == 0) ? noFill() : fill(255);
-            if (grid[i][j] == 2){
-                fill(255, 0, 0);
+
+function draw(){          
+    
+    level = Math.floor(lines/10);
+    gameSpeed = speeds[Math.min(level, 29)]
+
+    if(!paused && !gameOver){
+        for (i in pressedKeys){
+            if (keyIsDown(keyCodes[i])){
+                if(frames - pressedKeys[i][0] > 10 && pressedKeys[i][0] != 0){
+                    pressedKeys[i][1] += 1;
+                    if(pressedKeys[i][1] % 2 == 0){
+                        if(i == "Down"){
+                            score += 1
+                            down();
+                        } 
+                        else if(i == "Right") side(1);
+                        else if(i == "Left") side(-1);
+                    }
+                }
             }
-            rect(i*scale+width/4, j*scale, scale, scale)
-        }
-    }
-}
-
-class Block{
-    
-    
-    constructor(){
-        Block.blocks.push(this);
-        // x and y for grid
-        this.x = floor(random(10));
-        this.y = -2;
-        // type of block used to get layers from blockTypes object
-        this.type = floor(random(7));
-        this.top = blockTypes[this.type][0][0];
-        this.bottom = blockTypes[this.type][0][1];
-        this.active = true;
-        this.variations = blockTypes[this.type][1];
-        this.rotation = 0;
-        currentBlock+=1;
-    }
-
-    static updateAll(){
-        for(let i = 0; i < Block.blocks.length; i++){
-            Block.blocks[i].update();
-        }
-    }
-
-    update(){
-        if(this.isNextClear()){
-            this.setBlock(0);
-            this.y += 1;
-            this.setBlock(1);
-        }
-    }
-
-    isNextClear(){
-        if(this.y+2>=height/scale){
-            this.hitGround()
-            return false;
+            else{
+                pressedKeys[i] = [0, 0];
+            }
         }
         
-        for(let i = 0; i<4; i++){
-            if (this.bottom[i] == 0){
-                if (grid[this.x+i][this.y+1] == 1 ){
-                    this.hitGround()
-                    return false;
+        
+        // Main loop ---------------------------------------------------------
+        if(!gameOver){
+            frames += 1;
+            if(frames % gameSpeed == 0){
+                down();
+            }
+            
+            if(frames % changeSpeed == 0){
+                gameSpeed -= 5;
+                console.log(gameSpeed);
+                if(gameSpeed < 15) gameSpeed = 15;
+            }
+
+            tetri=[];
+            for (let j = 0; j < areaH; j++){
+                s = 0;
+                for (let i = 0; i < areaW; i++){
+                    if(stat[i][j] > 0) s+=1;
                 }
-            }else if (grid[this.x+i][this.y+2] == 1){
-                this.hitGround()
-                return false;
+                //print(s)
+                if(s == areaW) tetri[j] = 1;
+                else tetri[j] = 0;
+            }
+            
+            s = tetri.reduce((a,b) => a+b, 0);
+            lines += s
+            if(s == 1){
+                score += 40*level;
+            }
+            else if(s == 2){
+                score += 100*level;
+            }
+            else if(s == 3){
+                score += 300*level;
+            }
+            else if(s == 4){
+                score += 1200*level;
+            }
+
+            for (let i = 0; i<tetri.length; i++){
+                if(tetri[i] == 1){
+                    for (let j = 0; j < areaW; j++){
+                        stat[j].splice(i,1);
+                        stat[j] = concat([0], stat[j])
+                    }
+                }
+            }
+            //Sum
+            for (let j = 0; j < s; j++){
+                for (let i = 0; i < areaW; i++){
+                }
+            }
+
+            //Check Game over
+            for (let i = 0; i < areaW; i++){
+                if(stat[i][0] > 0){
+                    gameOver = true;
+                }
             }
         }
-        return true;
+
     }
-    setBlock(n){
-        for (let i = 0; i<4; i++){
-            if (this.top[i] == 1){
-                grid[this.x+i][this.y] = 1*n;
+    // #Crtanje ------------------------------------------------------
+    background(255, 255, 255);
+        
+
+    ghost.map = b.map;
+    ghost.color = (200, 200, 200);
+    ghost.x = b.x;
+    ghost.y = b.y;
+    ghost.rot = b.rot;
+    ghost.type = b.type;
+    ghost.goToBottom(stat);
+    for (let i = 0; i < 4; i++){
+        for (let j = 0; j < 4; j++){
+            if(ghost.getMap(i, j) == 1){
+                fill(ghost.color);
+                rect(xOffset+(ghost.x+i)*blockW, (ghost.y+j)*blockW, blockW, blockW);
             }
-            if (this.bottom[i] == 1){
-                grid[this.x+i][this.y+1] = 1*n;
-            }
-            //grid[this.x+i][this.y+1] = n*this.bottom[i];
         }
-    }
-    
-    hitGround(){
-        if (this.active){
-            this.active = false;
-            speed = 10;
-            new Block();
-            if(this.y<=1){
-                document.querySelector('.para').innerHTML = "You Lost";
-                noLoop();
-            }
-        } 
     }
 
-    rotate(){
-        this.rotation++;
-        this.rotation %= this.variations;
-        if(this.rotation == 1){
-            this.left = this.top;
-            this.right = this.bottom;
-        }else if(this.rotation == 0){
-            this.top = this.left;
-            this.bottom = this.right;
+    
+    for (let i = 0; i < 4; i++){
+        for (let j = 0; j < 4; j++){
+            if(b.getMap(i,j) > 0){
+                fill(b.color);
+                rect(xOffset+(b.x+i)*blockW, (b.y+j)*blockW, blockW, blockW);
+            }
         }
     }
+    for (let i = 0; i < areaW; i++){
+        for (let j = 0; j < areaH; j++){
+            if(stat[i][j] > 0){
+                fill(colors[stat[i][j]-1]);
+                //if(tetri[j] == 1) fill(255, 255, 255);
+                rect(xOffset+i*blockW, j*blockW, blockW, blockW);
+            }
+        }
+    }
+            
+    // #Next block
+    nextBlock.type = b.nextBlockType;
+    nextBlock.map = tipovi[nextBlock.type];
+    nextBlock.color = colors[typeColor[nextBlock.type]-1];
+    for (let i = 0; i < 4; i++){
+        for (let j = 0; j < 4; j++){
+            if(nextBlock.getMap(i, j) == 1){
+                fill(nextBlock.color);
+                rect(xOffset+w+(nextBlock.x+i)*blockW, 4*blockW+(nextBlock.y+j)*blockW, blockW, blockW);
+            }
+        }
+    }
+    noFill();
+    stroke(171, 171, 171);
+    rect(xOffset+w+blockW, 4*blockW, 4*blockW, 4*blockW);
+    noStroke();
+
+    // #Show score
+    // scoreText = font.render('Score: '+str(score), true, (0, 0, 0))
+    // screen.blit(scoreText, (blockW, 4*blockW))
+    // scoreText = font.render('Lines: '+str(lines), true, (0, 0, 0))
+    // screen.blit(scoreText, (blockW, 6*blockW))
+
+    //Score
+    fill(0)
+    textAlign(LEFT)
+    text('Score: '+score, blockW, 4*blockW);
+    text('Lines: '+lines, blockW, 6*blockW)
+
+    
+    // #Grid lines
+    stroke(171, 171, 171);
+    noFill();
+    for (let i = 0; i < areaW+1; i++){
+        line(xOffset+i*blockW, 0, xOffset+i*blockW, h);
+    }
+    for (let i = 0; i < areaH+1; i++){
+        line(xOffset, i*blockW, xOffset+w, i*blockW);
+    }
+    noStroke();
+
+    // #Pause menu
+    if(paused){
+        fill(94, 94, 94, 200);
+        rect(xOffset+3/2*blockW, (6+1/2)*blockW, 2*blockW, 8*blockW)
+        rect(xOffset+(10-3/2-2)*blockW, (6+1/2)*blockW, 2*blockW, 8*blockW)
+        
+
+        // selected %= selections.length;
+        // startY = 5*blockW;
+        // fill(94, 94, 94);
+        // rect(xOffset-2*blockW, startY, blockW*(areaW+4), areaH*blockW-2*startY);
+        // text = font.render("Paused", true, (255, 255, 255))
+        // screen.blit(text, (xOffset+width/2-text.get_width()/2, blockW+startY-text.get_height()/2))
+        // for (let i = 0; i <selections.length; i++){
+        //     text = font.render(selections[i], true, (200, 200, 200))
+        //     if(i == selected){
+        //         text = font.render(selections[i], true, (0, 0, 0))
+        //         fill(0)
+        //         triangle(xOffset+width/2-text.get_width()/2-10, (i+4)*blockW+startY,
+        //                 xOffset+width/2-text.get_width()/2-15, (i+4)*blockW+startY+5,
+        //                 xOffset+width/2-text.get_width()/2-15, (i+4)*blockW+startY-5)
+        //         triangle(xOffset+width/2+text.get_width()/2+10, (i+4)*blockW+startY,
+        //                 xOffset+width/2+text.get_width()/2+15, (i+4)*blockW+startY+5,
+        //                 xOffset+width/2+text.get_width()/2+15, (i+4)*blockW+startY-5)
+        //     }
+        //     screen.blit(text, (xOffset+width/2-text.get_width()/2, (i+4)*blockW+startY-text.get_height()/2))
+        //}
+    }
+
+    if(gameOver){
+        fill(94, 94, 94, 200);
+        rect(xOffset-2*blockW, 6*blockW, blockW*(areaW+4), 8*blockW);
+        fill(255);
+        textAlign(CENTER);
+        text("Game Over, Press space to play again", xOffset+areaW/2*blockW, areaH*blockW/2);
+        // text = font.render("Game Over", true, (255, 255, 255))
+        // screen.blit(text, (xOffset+width/2-text.get_width()/2, height/2-text.get_height()/2))
+    }
+
 
 }
-
-Block.blocks = [];
