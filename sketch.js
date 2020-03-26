@@ -69,7 +69,7 @@ let buttonsPressed = [false, false, false];
 DOWN_BUTTON = 0; LEFT_BUTTON = 1; RIGHT_BUTTON = 2; UP_BUTTON = 3;
 let downButton = new Button(blockW); let leftButton = new Button(blockW);
 let rightButton = new Button(blockW); let upButton = new Button(blockW);
-let pauseButton = new Button(blockW/2);
+let pauseButton = new Button(blockW/4);
 let buttons = [downButton, leftButton, rightButton, upButton, pauseButton]
 let buttonsOn = true;
 
