@@ -1,15 +1,15 @@
 
 function down(){
     if(b.update(stat) == 1){
-        pressedKeys["Down"] = [0, 0]
+        pressedKeys[DOWN_BUTTON] = [0, 0]
     }
     // area = [... empty]
     // b.drawInto(area)
 }
 
 function side(dx){
-    k = "Left"
-    if(dx == 1) k = "Right"
+    k = LEFT_BUTTON
+    if(dx == 1) k = RIGHT_BUTTON
     if(b.side(stat, dx) == 1){
         pressedKeys[k] = [0, 0]
     }
@@ -57,6 +57,7 @@ let w = blockW*areaW;
 let h = blockW*areaH;
 let xOffset = blockW*6;
 let yOffset = 0;
+if(isMobile) yOffset = 10*blockW;
 let stat, empty;
 let b, ghostBlock, nextBlock;
 let changeSpeed = 200;
@@ -64,6 +65,12 @@ let tetri = [];
 let selected = 0;
 let selections = ["Resume", "New Game"];
 let frames, gameOver, paused, lines, score, gameSpeed, level;
+let buttonsPressed = [false, false, false];
+DOWN_BUTTON = 0; LEFT_BUTTON = 1; RIGHT_BUTTON = 2; UP_BUTTON = 3;
+let downButton = new Button(0, blockW); let leftButton = new Button(1, blockW);
+let rightButton = new Button(2, blockW); let upButton = new Button(3, blockW);
+let buttons = [downButton, leftButton, rightButton, upButton]
+let buttonsOn = true;
 
 function initialize(){
     frames = 0
@@ -88,16 +95,19 @@ function initialize(){
 
 function setup(){
     initialize()
-    createCanvas(w+2*xOffset, h+yOffset)
+    createCanvas(w+2*xOffset, h+yOffset);
+    if(isMobile){
+        upButton.x = width/2-upButton.w/2; upButton.y = areaH*blockW+upButton.h/2;
+        downButton.x = width/2-downButton.w/2; downButton.y = areaH*blockW+5*downButton.h/2;
+        leftButton.x = width/2-3*upButton.w/2; leftButton.y = areaH*blockW+3*upButton.h/2;
+        rightButton.x = width/2+upButton.w/2; rightButton.y = areaH*blockW+3*upButton.h/2;
+    }
     textFont('Helvetica');
-    textSize(20);
+    textSize(2/3*blockW);
     b = new Block("T");
     ghost = new Block(b.type);
     nextBlock = new Block(b.nextBlockType);
-    keyCodes = {"Down": DOWN_ARROW,"Left": LEFT_ARROW,"Right": RIGHT_ARROW};
-
-    // #Makes the area 2d array
-    
+    keyCodes = [DOWN_ARROW, LEFT_ARROW, RIGHT_ARROW, UP_ARROW];
 }
 
 
@@ -109,15 +119,15 @@ function keyPressed(){
         if(!paused){
             if(keyCode === DOWN_ARROW){
                 down()
-                pressedKeys["Down"][0] = frames
+                pressedKeys[DOWN_BUTTON][0] = frames
             }
             else if(keyCode === LEFT_ARROW){
                 side(-1);
-                pressedKeys["Left"][0] = frames
-            }
+                pressedKeys[LEFT_BUTTON][0] = frames
+            }   
             else if(keyCode === RIGHT_ARROW){
                 side(1);
-                pressedKeys["Right"][0] = frames
+                pressedKeys[RIGHT_BUTTON][0] = frames
             }
             else if(keyCode === UP_ARROW){
                 rotateBlock();
@@ -141,6 +151,24 @@ function keyPressed(){
         }
     }
 }
+function mousePressed(){
+    for(let i = 0; i < buttons.length; i++){
+        if(buttons[i].pressing(mouseX, mouseY)){
+            keyCode = keyCodes[buttons[i].code];
+            keyPressed()
+            console.log("pressed", keyCodes[buttons[i].code])
+            if(buttons[i].code != 3) buttonsPressed[buttons[i].code] = true;
+        }
+    }
+}
+function mouseReleased(){
+    buttonsPressed = [false, false, false];
+}
+
+function isKeyDown(code){
+    if(!isMobile) return keyIsDown(keyCodes[code]);
+    return buttonsPressed[code]
+}
 
 
 function draw(){          
@@ -149,17 +177,17 @@ function draw(){
     gameSpeed = speeds[Math.min(level, 29)]
 
     if(!paused && !gameOver){
-        for (i in pressedKeys){
-            if (keyIsDown(keyCodes[i])){
+        for (let i = 0; i<3; i++){
+            if (isKeyDown(i)){
                 if(frames - pressedKeys[i][0] > 10 && pressedKeys[i][0] != 0){
                     pressedKeys[i][1] += 1;
                     if(pressedKeys[i][1] % 2 == 0){
-                        if(i == "Down"){
-                            score += 1
+                        if(i == DOWN_BUTTON){
+                            score += 1;
                             down();
                         } 
-                        else if(i == "Right") side(1);
-                        else if(i == "Left") side(-1);
+                        else if(i == RIGHT_BUTTON) side(1);
+                        else if(i == LEFT_BUTTON) side(-1);
                     }
                 }
             }
@@ -289,6 +317,10 @@ function draw(){
     text('Lines: '+lines, blockW, 6*blockW);
     text('Level: '+level, blockW, 8*blockW);
 
+    downButton.draw()
+    leftButton.draw()
+    rightButton.draw()
+    upButton.draw()
     
     // #Grid lines
     stroke(171, 171, 171);
