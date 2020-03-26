@@ -57,7 +57,7 @@ let w = blockW*areaW;
 let h = blockW*areaH;
 let xOffset = blockW*6;
 let yOffset = 0;
-if(isMobile) yOffset = 10*blockW;
+if(isMobile) yOffset = 15*blockW;
 let stat, empty;
 let b, ghostBlock, nextBlock;
 let changeSpeed = 200;
