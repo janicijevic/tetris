@@ -67,9 +67,10 @@ let selections = ["Resume", "New Game"];
 let frames, gameOver, paused, lines, score, gameSpeed, level;
 let buttonsPressed = [false, false, false];
 DOWN_BUTTON = 0; LEFT_BUTTON = 1; RIGHT_BUTTON = 2; UP_BUTTON = 3;
-let downButton = new Button(0, blockW); let leftButton = new Button(1, blockW);
-let rightButton = new Button(2, blockW); let upButton = new Button(3, blockW);
-let buttons = [downButton, leftButton, rightButton, upButton]
+let downButton = new Button(blockW); let leftButton = new Button(blockW);
+let rightButton = new Button(blockW); let upButton = new Button(blockW);
+let pauseButton = new Button(blockW/2);
+let buttons = [downButton, leftButton, rightButton, upButton, pauseButton]
 let buttonsOn = true;
 
 function initialize(){
@@ -97,17 +98,18 @@ function setup(){
     initialize()
     createCanvas(w+2*xOffset, h+yOffset);
     if(isMobile){
-        upButton.x = width/2-upButton.w/2; upButton.y = areaH*blockW+upButton.h/2;
-        downButton.x = width/2-downButton.w/2; downButton.y = areaH*blockW+5*downButton.h/2;
-        leftButton.x = width/2-3*upButton.w/2; leftButton.y = areaH*blockW+3*upButton.h/2;
-        rightButton.x = width/2+upButton.w/2; rightButton.y = areaH*blockW+3*upButton.h/2;
+        upButton.x = width/2-upButton.w/2; upButton.y = areaH*blockW+blockW;
+        downButton.x = width/2-downButton.w/2; downButton.y = upButton.y+upButton.h*2;
+        leftButton.x = width/2-3*upButton.w/2; leftButton.y = upButton.y+upButton.h;
+        rightButton.x = width/2+upButton.w/2; rightButton.y = upButton.y+upButton.h;
+        pauseButton.x = pauseButton.w/4; pauseButton.y = 0;
     }
     textFont('Helvetica');
     textSize(2/3*blockW);
     b = new Block("T");
     ghost = new Block(b.type);
     nextBlock = new Block(b.nextBlockType);
-    keyCodes = [DOWN_ARROW, LEFT_ARROW, RIGHT_ARROW, UP_ARROW];
+    keyCodes = [DOWN_ARROW, LEFT_ARROW, RIGHT_ARROW, UP_ARROW, 27];
 }
 
 
@@ -152,11 +154,19 @@ function keyPressed(){
     }
 }
 function touchStarted(){
-    for(let i = 0; i < buttons.length; i++){
-        if(buttons[i].pressing(mouseX, mouseY)){
-            keyCode = keyCodes[buttons[i].code];
-            keyPressed()
-            if(buttons[i].code != 3) buttonsPressed[buttons[i].code] = true;
+    if(!gameOver && !paused){
+        for(let i = 0; i < buttons.length; i++){
+            if(buttons[i].pressing(mouseX, mouseY)){
+                keyCode = keyCodes[i];
+                keyPressed()
+                if(i != 3) buttonsPressed[i] = true;
+            }
+        }
+    }
+    else {
+        if(mouseY < areaH*blockW){
+            if(gameOver) initialize();
+            else if(paused) paused = false;
         }
     }
 }
@@ -172,14 +182,15 @@ function isKeyDown(code){
 
 
 function draw(){          
-    
     level = Math.floor(lines/10);
     gameSpeed = speeds[Math.min(level, 29)]
 
     if(!paused && !gameOver){
         for (let i = 0; i<3; i++){
             if (isKeyDown(i)){
-                if(frames - pressedKeys[i][0] > 10 && pressedKeys[i][0] != 0){
+                let t = 10
+                if(isMobile) t = 30
+                if(frames - pressedKeys[i][0] > t && pressedKeys[i][0] != 0){
                     pressedKeys[i][1] += 1;
                     if(pressedKeys[i][1] % 2 == 0){
                         if(i == DOWN_BUTTON){
@@ -317,10 +328,9 @@ function draw(){
     text('Lines: '+lines, blockW, 6*blockW);
     text('Level: '+level, blockW, 8*blockW);
 
-    downButton.draw()
-    leftButton.draw()
-    rightButton.draw()
-    upButton.draw()
+    for(let i = 0; i<buttons.length; i++){
+        buttons[i].draw()
+    }
     
     // #Grid lines
     stroke(171, 171, 171);

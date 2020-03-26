@@ -154,14 +154,13 @@ class Block{
 }
 
 class Button{
-    constructor(code, blockW){
+    constructor(blockW){
         this.x = -200;
         this.y = -200;
-        this.w = blockW*2;
-        this.h = blockW*2;
+        this.w = blockW*3;
+        this.h = blockW*3;
         this.text = '';
         this.color = 170;
-        this.code = code;
     }
 
     pressing(x, y){
