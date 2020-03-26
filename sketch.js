@@ -151,17 +151,17 @@ function keyPressed(){
         }
     }
 }
-function mousePressed(){
+function touchStarted(){
     for(let i = 0; i < buttons.length; i++){
         if(buttons[i].pressing(mouseX, mouseY)){
             keyCode = keyCodes[buttons[i].code];
             keyPressed()
-            console.log("pressed", keyCodes[buttons[i].code])
             if(buttons[i].code != 3) buttonsPressed[buttons[i].code] = true;
         }
     }
 }
-function mouseReleased(){
+function touchEnded(e){
+    e.preventDefault();
     buttonsPressed = [false, false, false];
 }
 
