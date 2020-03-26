@@ -4,7 +4,7 @@ function modulo(a,n) {
 
 let speeds= [48, 43, 38, 33, 28, 23, 18, 13, 8, 6, 5, 5, 5, 4, 4, 4, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1]  
 
-let pressedKeys = {"Down": [0,0],"Left": [0,0],"Right": [0,0]};
+let pressedKeys = [[0,0], [0,0], [0,0]];
 
 let tipovi = {
     "I": "0000000011110000",
@@ -150,5 +150,30 @@ class Block{
             if(this.collision(stat)) break;
         }
         this.y -= 1;
+    }
+}
+
+class Button{
+    constructor(code, blockW){
+        this.x = -200;
+        this.y = -200;
+        this.w = blockW*2;
+        this.h = blockW*2;
+        this.text = '';
+        this.color = 170;
+        this.code = code;
+    }
+
+    pressing(x, y){
+        return x > this.x && x < this.x+this.w && y > this.y && y < this.y+this.h;
+    }
+
+    draw(){
+        fill(this.color);
+        rect(this.x, this.y, this.w, this.h);
+        fill(255);
+        textAlign(CENTER);
+        text(this.text, this.x+this.w/2, this.y+this.h/2);
+        textAlign(LEFT);
     }
 }
