@@ -157,8 +157,8 @@ class Button{
     constructor(blockW){
         this.x = -200;
         this.y = -200;
-        this.w = blockW*3;
-        this.h = blockW*3;
+        this.w = blockW*4;
+        this.h = blockW*4;
         this.text = '';
         this.color = 170;
     }
