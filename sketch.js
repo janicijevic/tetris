@@ -122,7 +122,7 @@ function setup(){
     textFont('Lucida Console');
     initializeButtons();
     // socket = io.connect("http://localhost:3000");
-    socket = io.connect('http://petris-online.herokuapp.com')
+    socket = io.connect('https://petris-online.herokuapp.com')
     socket.on('connect', () =>{
         console.log("Successfully connected to server");
         menuButtons[states.MENU.START][2].active = true;
