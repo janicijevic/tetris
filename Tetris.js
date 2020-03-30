@@ -99,7 +99,7 @@ class Tetris{
     }
 
     update(){
-        if(this.id == 0)
+        if(this.id == 0 && mode == ONLINE)
             socket.emit("update", {tetris: this, roomCode: roomCode})
         
         if(this.gameOver) return
