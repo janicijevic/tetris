@@ -1,0 +1,25 @@
+body{
+    padding:0;
+    margin:0;
+}
+html, body {
+    overflow: hidden;
+}
+
+#canvasContainer{
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-content: center;
+}
+canvas{
+    margin: auto;
+}
+
+input {
+    border: none;  
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+}

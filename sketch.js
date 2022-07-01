@@ -1,11 +1,4 @@
 
-/*
-TODO:
--Add menu when starting game
--Resize canvas based on how many tetris instances there are
--implement online multiplayer either through socket.io or WebRtc peer to peer communication
-
-*/
 let socket;
 
 let frames;
@@ -38,6 +31,7 @@ let recievedButton = false
 let connected = false;
 let quitting = false;
 let gameOverText = "";
+let canvas;
 
 function resizeGame(){
     console.log("resizing")
@@ -118,7 +112,8 @@ function setup(){
     })
     initializeGame()
     state = states.MENU.START;
-    createCanvas(tetris.length*xOff, h+yOffset);
+    canvas = createCanvas(tetris.length*xOff, h+yOffset);
+    canvas.parent("canvasContainer");
     textFont('Lucida Console');
     initializeButtons();
     // socket = io.connect("http://localhost:3000");
@@ -274,7 +269,7 @@ function touchEnded(e){
 
 
 function renderPage(txt, tSize){
-    background(menuColor, 0, 0);
+    background(menuColor, 127-menuColor/2, 127+menuColor/2);
     //Change color
     if(menuColor > 255) menuChange = -1;
     else if(menuColor < 0) menuChange = 1;
@@ -285,14 +280,14 @@ function renderPage(txt, tSize){
         if(menuButtons[state][i].pressing(mouseX, mouseY)) selected = i;
         if(connecting) selected = -1
         if(selected == i) bold = true;
-        menuButtons[state][i].color = [255-menuColor, 0, menuColor]
-        menuButtons[state][i].textColor = menuColor;
+        menuButtons[state][i].color = [255-menuColor, 127+menuColor/2, menuColor];
+        menuButtons[state][i].textColor = [menuColor, 127-menuColor/2, 255-menuColor];
         if(menuButtons[state][i].text == "Online"){
             textBox.show();
             textBox.size(menuButtons[state][i].w, menuButtons[state][i].h/2);
-            textBox.position(menuButtons[state][i].x, menuButtons[state][i].y+menuButtons[state][i].h+2)
-            textBox.elt.style.backgroundColor = rgbToHex(menuButtons[state][i].color)
-            textBox.elt.style.color = rgbToHex([menuColor, menuColor, menuColor])
+            textBox.position(canvas.position().x+menuButtons[state][i].x-2, canvas.position().y+menuButtons[state][i].y+menuButtons[state][i].h+2);
+            textBox.elt.style.backgroundColor = rgbToHex(menuButtons[state][i].color);
+            textBox.elt.style.color = rgbToHex([menuColor, menuColor, menuColor]);
         }
         menuButtons[state][i].draw(bold);
     }
@@ -302,7 +297,7 @@ function renderPage(txt, tSize){
         textSize(tSize);
         stroke(0)
         strokeWeight(5);
-        fill(255-menuColor, 0, 0);
+        fill(255-menuColor, 127-menuColor/2, menuColor);
         text(txt, width/2, height/4);
     pop();
 }
